@@ -9,6 +9,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "data_images")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+// 3 size: 255x298 - 360x420 - 700x817
 public class DataImage implements Serializable {
     @Id
     private String id;
