@@ -5,4 +5,5 @@ import com.khangse616.crawldatazanado.models.Brand;
 public interface IBrandService {
     boolean existBrandById(int id);
     Brand save(Brand brand);
+    Brand findBrandById(int id);
 }

@@ -4,6 +4,7 @@ import com.khangse616.crawldatazanado.models.Brand;
 import com.khangse616.crawldatazanado.models.Category;
 import com.khangse616.crawldatazanado.models.Product;
 import com.khangse616.crawldatazanado.repositories.ProductRepository;
+import com.khangse616.crawldatazanado.services.IBrandService;
 import com.khangse616.crawldatazanado.services.ICategoryService;
 import com.khangse616.crawldatazanado.services.IProductService;
 import org.jsoup.Jsoup;
@@ -24,6 +25,9 @@ public class ProductService implements IProductService {
 
     @Autowired
     private ICategoryService categoryService;
+
+    @Autowired
+    private IBrandService brandService;
 
 
     @Override
@@ -49,7 +53,7 @@ public class ProductService implements IProductService {
             // save category
             Elements topbar = doc.select("div.top-bar > div.breadcrumbs > ul > li");
 
-            int idCategoryLevelLast =  -1;
+            int idCategoryLevelLast = -1;
 
             for (int i = 1; i < topbar.size(); i++) {
                 Element li = topbar.get(i);
@@ -59,12 +63,12 @@ public class ProductService implements IProductService {
 
                 Category category = new Category();
                 category.setId(idCategory);
-                category.setLevel(i-1);
+                category.setLevel(i - 1);
                 category.setName(nameCategory);
-                if(i!=1)
+                if (i != 1)
                     category.setParentCategory(categoryService.findCategoryById(idCategoryLevelLast));
                 // check exists category
-                if(!categoryService.existCategory(idCategory)){
+                if (!categoryService.existCategory(idCategory)) {
                     categoryService.save(category);
                 }
 
@@ -74,24 +78,28 @@ public class ProductService implements IProductService {
             Product productMain = new Product();
             productMain.setId(idProduct);
             productMain.setName(nameProductMain);
-            productMain.setSku("SID"+ idProduct);
+            productMain.setSku("SID" + idProduct);
             productMain.setActive(true);
             productMain.setVisibility(true);
             productMain.setShortDescription(productPriceView.select("div.product-description").text());
-            Brand brand;
-            String style;
-            String purpose;
-            String season;
+
             Elements attribute_products = main.select("div.block-description div.product-attributes div.product-attribute");
-            for(Element attr: attribute_products) {
+            for (Element attr : attribute_products) {
                 String title = attr.select("div.attribute-title").text().toLowerCase();
                 if (title.equals("thương hiệu")) {
                     int idBrand = Integer.parseInt(attr.select("a").attr("href").replaceAll("\\D", ""));
                     String nameBrand = attr.select("strong").text();
-                    System.out.println("id brand: " + idBrand + " - name: " + nameBrand);
+                    if (!brandService.existBrandById(idBrand)) {
+                        Brand brand = new Brand();
+                        brand.setId(idBrand);
+                        brand.setName(nameBrand);
+                        brandService.save(brand);
+                    }
+                    productMain.setBrand(brandService.findBrandById(idBrand));
+
                 } else {
                     if (title.equals("chất liệu")) {
-                         productMain.setMaterial(attr.select("div.attribute-text").text());
+                        productMain.setMaterial(attr.select("div.attribute-text").text());
                     } else {
                         if (title.equals("kiểu dáng")) {
                             productMain.setStyle(attr.select("div.attribute-text").text());
@@ -111,39 +119,35 @@ public class ProductService implements IProductService {
                     }
                 }
             }
-//
-//            String textDiscount = productPriceView.select("div.sprites.discountpercent").text().replace("%", "");
-//            int discountPercent = textDiscount.equals("") ? 0 : Math.abs(Integer.parseInt(textDiscount));
-//            System.out.println("discountPercent: " + discountPercent);
-//
-//            int price = Integer.parseInt(productPriceView.select("div.pricespecial").text().replaceAll("[^0-9]", ""));
-//            System.out.println("price: " + price);
-//
-//            Elements allAttributes = detailText.select("div.add-to-box div.product-attributeconf");
-//
-//            allAttributes.forEach(e -> {
-//                Elements attributes = e.select("div.attributeconf-text > ul");
-//                String[] idNameAttr = attributes.attr("id").split("-");
-//                int idAttr = Integer.parseInt(idNameAttr[2]);
-//                String nameAttr = idNameAttr[1];
-//                System.out.println("id: " + idAttr + " - name: " + nameAttr);
-//
-//                Elements options = attributes.select("> li");
-//
-//                if (nameAttr.equals("color")) {
-//                    options.forEach(o-> {
-//                        int idOp = Integer.parseInt(o.select("input").attr("value"));
-//                        String nameOp = o.select("img").attr("title");
-//                        System.out.println("id: " + idOp + " - name: " + nameOp);
-//                    });
-//                } else {
-//                    options.forEach(o -> {
-//                        int idOp = Integer.parseInt(o.select("input").attr("value"));
-//                        String nameOp = o.select("label").text();
-//                        System.out.println("id: " + idOp + " - name: " + nameOp);
-//                    });
-//                }
-//            });
+
+            productMain.setHighlight(main.select("div.block-description div.overview").html());
+            productMain.setDescription(main.select("div.block-description > p").outerHtml());
+            String textDiscount = productPriceView.select("div.sprites.discountpercent").text().replace("%", "");
+            productMain.setPromotionPercent(textDiscount.equals("") ? 0 : Math.abs(Integer.parseInt(textDiscount)));
+
+            Elements allAttributes = detailText.select("div.add-to-box div.product-attributeconf");
+
+            for (Element e : allAttributes) {
+                Elements attributes = e.select("div.attributeconf-text > ul");
+                String[] idNameAttr = attributes.attr("id").split("-");
+                int idAttr = Integer.parseInt(idNameAttr[2]);
+                String nameAttr = idNameAttr[1];
+                Elements options = attributes.select("> li");
+
+                if (nameAttr.equals("color")) {
+                    options.forEach(o -> {
+                        int idOp = Integer.parseInt(o.select("input").attr("value"));
+                        String nameOp = o.select("img").attr("title");
+                        System.out.println("id: " + idOp + " - name: " + nameOp);
+                    });
+                } else {
+                    options.forEach(o -> {
+                        int idOp = Integer.parseInt(o.select("input").attr("value"));
+                        String nameOp = o.select("label").text();
+                        System.out.println("id: " + idOp + " - name: " + nameOp);
+                    });
+                }
+            }
 //
 //            Elements liImg = main.select("div.blockhead div.detail-imgproduct ul.thumb-detail > li");
 //            liImg.forEach(li->{
@@ -155,12 +159,11 @@ public class ProductService implements IProductService {
 //                System.out.println(link_img);
 //            });
 //
-//            String highlight = main.select("div.block-description div.overview").html();
-//            String description = main.select("div.block-description > p").outerHtml();
-//
+            //            int price = Integer.parseInt(productPriceView.select("div.pricespecial").text().replaceAll("[^0-9]", ""));
+//            System.out.println("price: " + price);
 
 
-            return nameProductMain;
+            return "done";
         } catch (IOException e) {
             e.printStackTrace();
         }
