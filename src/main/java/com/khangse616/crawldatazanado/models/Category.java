@@ -36,8 +36,9 @@ public class Category implements Serializable {
 //    @JsonIgnore
     private Set<Category> categories = new HashSet<>();
 
-//    @ManyToMany(targetEntity = Product.class, mappedBy = "categories", cascade = CascadeType.ALL)
-//    private Set<Product> products = new HashSet<>();
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Product> products;
 
     public Category(){}
 
@@ -96,4 +97,13 @@ public class Category implements Serializable {
 //    public void setProducts(Set<Product> products) {
 //        this.products = products;
 //    }
+
+
+    public Set<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(Set<Product> products) {
+        this.products = products;
+    }
 }
