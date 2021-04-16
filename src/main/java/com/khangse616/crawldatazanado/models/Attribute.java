@@ -1,11 +1,10 @@
 package com.khangse616.crawldatazanado.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "attributes")
@@ -22,6 +21,10 @@ public class Attribute {
 
     @Column(name = "type")
     private String type;
+
+    @OneToMany(mappedBy = "attribute", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<OptionProductVarchar> options;
 
     public Attribute(){}
 
