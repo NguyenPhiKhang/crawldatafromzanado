@@ -17,7 +17,7 @@ public class ProductController implements IProductController {
     @Override
     @PostMapping("/create-product")
     public String createProduct() {
-        String url = "https://www.zanado.com/bo-do-the-thao-nang-dong-colo-cl1703339-dep-gia-tot-giam-30-sid65674.html?color=77";
+        String url = "https://www.zanado.com/ao-khoac-nam-akuba-cao-cap-3309-dep-gia-tot-sid66310.html?color=52";
         return productService.createProduct(url);
     }
 }

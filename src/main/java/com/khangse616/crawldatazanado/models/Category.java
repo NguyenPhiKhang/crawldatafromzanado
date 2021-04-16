@@ -13,7 +13,7 @@ import java.util.Set;
 @Entity
 @Table(name = "categories")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Category implements Serializable {
+public class Category implements Serializable, Cloneable{
     private static final long serialVersionUID = 1L;
 
     @Id

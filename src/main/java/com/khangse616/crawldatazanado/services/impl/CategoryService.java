@@ -16,5 +16,14 @@ public class CategoryService implements ICategoryService {
         return categoryRepository.save(category);
     }
 
+    @Override
+    public boolean existCategory(int id) {
+        return categoryRepository.existsCategoryById(id);
+    }
+
+    @Override
+    public Category findCategoryById(int id) {
+        return categoryRepository.findCategoryById(id);
+    }
 
 }
