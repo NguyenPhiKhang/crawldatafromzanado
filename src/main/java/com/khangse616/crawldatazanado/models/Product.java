@@ -42,10 +42,10 @@ public class Product implements Serializable {
     private String category;
     @Column(name = "is_free_ship")
     private boolean freeShip;
-    @Column(name = "time_created")
-    private Timestamp timeCreated;
-    @Column(name = "time_updated")
-    private Timestamp timeUpdated;
+    @Column(name = "created_at")
+    private Timestamp createdAt;
+    @Column(name = "updated_at")
+    private Timestamp updatedAt;
 
 //    @OneToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "rating_star_id")
@@ -196,20 +196,20 @@ public class Product implements Serializable {
         this.visibility = visibility;
     }
 
-    public Timestamp getTimeCreated() {
-        return timeCreated;
+    public Timestamp getCreatedAt() {
+        return createdAt;
     }
 
-    public void setTimeCreated(Timestamp timeCreated) {
-        this.timeCreated = timeCreated;
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public Timestamp getTimeUpdated() {
-        return timeUpdated;
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setTimeUpdated(Timestamp timeUpdated) {
-        this.timeUpdated = timeUpdated;
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
 
