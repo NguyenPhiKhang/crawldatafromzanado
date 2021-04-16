@@ -1,9 +1,12 @@
 package com.khangse616.crawldatazanado.services.impl;
 
+import com.khangse616.crawldatazanado.Utils.StringUtil;
+import com.khangse616.crawldatazanado.models.Attribute;
 import com.khangse616.crawldatazanado.models.Brand;
 import com.khangse616.crawldatazanado.models.Category;
 import com.khangse616.crawldatazanado.models.Product;
 import com.khangse616.crawldatazanado.repositories.ProductRepository;
+import com.khangse616.crawldatazanado.services.IAttributeService;
 import com.khangse616.crawldatazanado.services.IBrandService;
 import com.khangse616.crawldatazanado.services.ICategoryService;
 import com.khangse616.crawldatazanado.services.IProductService;
@@ -28,6 +31,9 @@ public class ProductService implements IProductService {
 
     @Autowired
     private IBrandService brandService;
+
+    @Autowired
+    private IAttributeService attributeService;
 
 
     @Override
@@ -132,6 +138,19 @@ public class ProductService implements IProductService {
                 String[] idNameAttr = attributes.attr("id").split("-");
                 int idAttr = Integer.parseInt(idNameAttr[2]);
                 String nameAttr = idNameAttr[1];
+
+                if(!attributeService.existAttributeById(idAttr)){
+                    Attribute attribute = new Attribute();
+                    attribute.setId(idAttr);
+                    attribute.setCode(nameAttr.toLowerCase());
+                    attribute.setLabel(StringUtil.capitalize(nameAttr));
+                    attribute.setType("varchar");
+
+                    attributeService.save(attribute);
+                }
+
+
+
                 Elements options = attributes.select("> li");
 
                 if (nameAttr.equals("color")) {
