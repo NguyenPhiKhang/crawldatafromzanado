@@ -18,8 +18,8 @@ public class AttributeService implements IAttributeService {
     }
 
     @Override
-    public Attribute save(Attribute brand) {
-        return attributeRepository.save(brand);
+    public Attribute save(Attribute attribute) {
+        return attributeRepository.save(attribute);
     }
 
     @Override

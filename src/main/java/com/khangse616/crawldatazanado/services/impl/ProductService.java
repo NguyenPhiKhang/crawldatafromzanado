@@ -1,15 +1,9 @@
 package com.khangse616.crawldatazanado.services.impl;
 
 import com.khangse616.crawldatazanado.Utils.StringUtil;
-import com.khangse616.crawldatazanado.models.Attribute;
-import com.khangse616.crawldatazanado.models.Brand;
-import com.khangse616.crawldatazanado.models.Category;
-import com.khangse616.crawldatazanado.models.Product;
+import com.khangse616.crawldatazanado.models.*;
 import com.khangse616.crawldatazanado.repositories.ProductRepository;
-import com.khangse616.crawldatazanado.services.IAttributeService;
-import com.khangse616.crawldatazanado.services.IBrandService;
-import com.khangse616.crawldatazanado.services.ICategoryService;
-import com.khangse616.crawldatazanado.services.IProductService;
+import com.khangse616.crawldatazanado.services.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -34,6 +30,9 @@ public class ProductService implements IProductService {
 
     @Autowired
     private IAttributeService attributeService;
+
+    @Autowired
+    private IOptionProductVarcharService optionProductVarcharService;
 
 
     @Override
@@ -133,13 +132,17 @@ public class ProductService implements IProductService {
 
             Elements allAttributes = detailText.select("div.add-to-box div.product-attributeconf");
 
+            int numProduct = 1;
+
+            List<List<OptionProductVarchar>> listOpsss = new ArrayList<>();
+
             for (Element e : allAttributes) {
                 Elements attributes = e.select("div.attributeconf-text > ul");
                 String[] idNameAttr = attributes.attr("id").split("-");
                 int idAttr = Integer.parseInt(idNameAttr[2]);
                 String nameAttr = idNameAttr[1];
 
-                if(!attributeService.existAttributeById(idAttr)){
+                if (!attributeService.existAttributeById(idAttr)) {
                     Attribute attribute = new Attribute();
                     attribute.setId(idAttr);
                     attribute.setCode(nameAttr.toLowerCase());
@@ -149,24 +152,47 @@ public class ProductService implements IProductService {
                     attributeService.save(attribute);
                 }
 
-
+                Attribute attrNew = attributeService.findAttributeById(idAttr);
 
                 Elements options = attributes.select("> li");
 
-                if (nameAttr.equals("color")) {
-                    options.forEach(o -> {
-                        int idOp = Integer.parseInt(o.select("input").attr("value"));
-                        String nameOp = o.select("img").attr("title");
-                        System.out.println("id: " + idOp + " - name: " + nameOp);
-                    });
+                List<OptionProductVarchar> list1 = new ArrayList<>();
+                for (Element o : options) {
+                    int idOp = Integer.parseInt(o.select("input").attr("value"));
+                    String nameOp = nameAttr.equals("color") ? o.select("img").attr("title") : o.select("label").text();
+
+                    if (!optionProductVarcharService.existOptionProductVarcharById(idOp)) {
+                        OptionProductVarchar optionProductVarchar = new OptionProductVarchar();
+                        optionProductVarchar.setId(idOp);
+                        optionProductVarchar.setValue(nameOp);
+                        optionProductVarchar.setAttribute(attrNew);
+
+                        optionProductVarcharService.save(optionProductVarchar);
+                    }
+                    OptionProductVarchar optionProductVarcharNew = optionProductVarcharService.findOptionProductVarcharById(idOp);
+                    list1.add(optionProductVarcharNew);
+                }
+
+                listOpsss.add(list1);
+            }
+
+            List<Product> listProSub = new ArrayList<>();
+
+            if (listOpsss.size() == 2) {
+                for(int i=0;i<listOpsss.get(0).size();i++){
+                    for(int j=0;j<listOpsss.get(1).size();j++){
+
+                    }
+                }
+            } else {
+                if (listOpsss.size() == 1) {
+
                 } else {
-                    options.forEach(o -> {
-                        int idOp = Integer.parseInt(o.select("input").attr("value"));
-                        String nameOp = o.select("label").text();
-                        System.out.println("id: " + idOp + " - name: " + nameOp);
-                    });
+
                 }
             }
+
+
 //
 //            Elements liImg = main.select("div.blockhead div.detail-imgproduct ul.thumb-detail > li");
 //            liImg.forEach(li->{
