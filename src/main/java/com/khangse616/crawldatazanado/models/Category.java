@@ -22,6 +22,8 @@ public class Category implements Serializable {
     private String name;
     @Column(name = "icon")
     private String icon;
+    @Column(name="level")
+    private int level;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
@@ -79,7 +81,15 @@ public class Category implements Serializable {
         this.categories = categories;
     }
 
-//    public Set<Product> getProducts() {
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    //    public Set<Product> getProducts() {
 //        return products;
 //    }
 //
