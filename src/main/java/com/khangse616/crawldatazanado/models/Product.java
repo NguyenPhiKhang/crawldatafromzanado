@@ -3,10 +3,7 @@ package com.khangse616.crawldatazanado.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
@@ -28,20 +25,30 @@ public class Product implements Serializable {
     @Column(name = "short_description")
     @JsonIgnore
     private String shortDescription;
+    @Column(name="highlight")
+    private String highlight;
+    @Column(name = "type_id")
+    private String typeId;
     @Column(name = "visibility")
     private boolean visibility;
     @Column(name = "is_active")
     private boolean active;
     @Column(name = "promotion_percent")
     private int promotionPercent;
-    @Column(name = "is_promotion")
-    private boolean promotion;
     @Column(name = "order_count")
     private int orderCount;
-    @Column(name = "category")
-    private String category;
     @Column(name = "is_free_ship")
     private boolean freeShip;
+    @Column(name="material")
+    private String material;
+    @Column(name="style")
+    private String style;
+    @Column(name="purpose")
+    private String purpose;
+    @Column(name="suitable_season")
+    private String suitableSeason;
+    @Column(name="made_in")
+    private String madeIn;
     @Column(name = "created_at")
     private Timestamp createdAt;
     @Column(name = "updated_at")
@@ -53,14 +60,10 @@ public class Product implements Serializable {
 //    private RatingStar ratingStar;
 
 
-//    @ManyToMany(targetEntity = Category.class, cascade = CascadeType.ALL )
-//    @JoinTable(
-//            name = "category_product",
-//            joinColumns =
-//            @JoinColumn(name = "product_id", referencedColumnName = "id"),
-//            inverseJoinColumns = @JoinColumn(name = "category_id", referencedColumnName = "id"))
-//    @JsonIgnore
-//    private Set<Category> categories = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    @JsonIgnore
+    private Category category;
 
 //    @ManyToMany(targetEntity = Image.class, cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
 //    @JoinTable(
@@ -148,28 +151,12 @@ public class Product implements Serializable {
         this.orderCount = orderCount;
     }
 
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
     public String getSku() {
         return sku;
     }
 
     public void setSku(String sku) {
         this.sku = sku;
-    }
-
-    public boolean isPromotion() {
-        return promotion;
-    }
-
-    public void setPromotion(boolean promotion) {
-        this.promotion = promotion;
     }
 
     public boolean isActive() {
@@ -210,6 +197,62 @@ public class Product implements Serializable {
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getHighlight() {
+        return highlight;
+    }
+
+    public void setHighlight(String highlight) {
+        this.highlight = highlight;
+    }
+
+    public String getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(String typeId) {
+        this.typeId = typeId;
+    }
+
+    public String getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(String material) {
+        this.material = material;
+    }
+
+    public String getStyle() {
+        return style;
+    }
+
+    public void setStyle(String style) {
+        this.style = style;
+    }
+
+    public String getPurpose() {
+        return purpose;
+    }
+
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
+    }
+
+    public String getSuitableSeason() {
+        return suitableSeason;
+    }
+
+    public void setSuitableSeason(String suitableSeason) {
+        this.suitableSeason = suitableSeason;
+    }
+
+    public String getMadeIn() {
+        return madeIn;
+    }
+
+    public void setMadeIn(String madeIn) {
+        this.madeIn = madeIn;
     }
 }
 
