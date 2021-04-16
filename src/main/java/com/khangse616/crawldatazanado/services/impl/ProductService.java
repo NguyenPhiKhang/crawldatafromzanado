@@ -1,6 +1,8 @@
 package com.khangse616.crawldatazanado.services.impl;
 
+import com.khangse616.crawldatazanado.models.Brand;
 import com.khangse616.crawldatazanado.models.Category;
+import com.khangse616.crawldatazanado.models.Product;
 import com.khangse616.crawldatazanado.repositories.ProductRepository;
 import com.khangse616.crawldatazanado.services.ICategoryService;
 import com.khangse616.crawldatazanado.services.IProductService;
@@ -37,19 +39,17 @@ public class ProductService implements IProductService {
             Elements productPriceView = detailText.select("div.product-priceview");
 
             String[] nameId = productPriceView.select("div.product-name h1").text().split(" SID");
-            String name = nameId[0];
+            String nameProductMain = nameId[0];
 
-            int id = Integer.parseInt(nameId[1]);
+            int idProduct = Integer.parseInt(nameId[1]);
 
-            if (exitsProduct(id))
+            if (exitsProduct(idProduct))
                 return "Exist Product";
 
             // save category
             Elements topbar = doc.select("div.top-bar > div.breadcrumbs > ul > li");
 
-            Map<Integer, String> mapCategories = new HashMap<>();
-
-            int idCategoryParent = -1;
+            int idCategoryLevelLast =  -1;
 
             for (int i = 1; i < topbar.size(); i++) {
                 Element li = topbar.get(i);
@@ -62,20 +62,105 @@ public class ProductService implements IProductService {
                 category.setLevel(i-1);
                 category.setName(nameCategory);
                 if(i!=1)
-                    category.setParentCategory(categoryService.findCategoryById(idCategoryParent));
+                    category.setParentCategory(categoryService.findCategoryById(idCategoryLevelLast));
                 // check exists category
                 if(!categoryService.existCategory(idCategory)){
                     categoryService.save(category);
                 }
 
-                idCategoryParent = idCategory;
-
-                mapCategories.put(idCategory, nameCategory);
+                idCategoryLevelLast = idCategory;
             }
 
-//            System.out.println("id: " + id + " - name: " + name);
+            Product productMain = new Product();
+            productMain.setId(idProduct);
+            productMain.setName(nameProductMain);
+            productMain.setSku("SID"+ idProduct);
+            productMain.setActive(true);
+            productMain.setVisibility(true);
+            productMain.setShortDescription(productPriceView.select("div.product-description").text());
+            Brand brand;
+            String style;
+            String purpose;
+            String season;
+            Elements attribute_products = main.select("div.block-description div.product-attributes div.product-attribute");
+            for(Element attr: attribute_products) {
+                String title = attr.select("div.attribute-title").text().toLowerCase();
+                if (title.equals("thương hiệu")) {
+                    int idBrand = Integer.parseInt(attr.select("a").attr("href").replaceAll("\\D", ""));
+                    String nameBrand = attr.select("strong").text();
+                    System.out.println("id brand: " + idBrand + " - name: " + nameBrand);
+                } else {
+                    if (title.equals("chất liệu")) {
+                         productMain.setMaterial(attr.select("div.attribute-text").text());
+                    } else {
+                        if (title.equals("kiểu dáng")) {
+                            productMain.setStyle(attr.select("div.attribute-text").text());
+                        } else {
+                            if (title.equals("mục đích sd")) {
+                                productMain.setPurpose(attr.select("div.attribute-text").text());
+                            } else {
+                                if (title.equals("mùa phù hợp")) {
+                                    productMain.setSuitableSeason(attr.select("div.attribute-text").text());
+                                } else {
+                                    if (title.equals("xuất xứ")) {
+                                        productMain.setMadeIn(attr.select("div.attribute-text").text());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+//
+//            String textDiscount = productPriceView.select("div.sprites.discountpercent").text().replace("%", "");
+//            int discountPercent = textDiscount.equals("") ? 0 : Math.abs(Integer.parseInt(textDiscount));
+//            System.out.println("discountPercent: " + discountPercent);
+//
+//            int price = Integer.parseInt(productPriceView.select("div.pricespecial").text().replaceAll("[^0-9]", ""));
+//            System.out.println("price: " + price);
+//
+//            Elements allAttributes = detailText.select("div.add-to-box div.product-attributeconf");
+//
+//            allAttributes.forEach(e -> {
+//                Elements attributes = e.select("div.attributeconf-text > ul");
+//                String[] idNameAttr = attributes.attr("id").split("-");
+//                int idAttr = Integer.parseInt(idNameAttr[2]);
+//                String nameAttr = idNameAttr[1];
+//                System.out.println("id: " + idAttr + " - name: " + nameAttr);
+//
+//                Elements options = attributes.select("> li");
+//
+//                if (nameAttr.equals("color")) {
+//                    options.forEach(o-> {
+//                        int idOp = Integer.parseInt(o.select("input").attr("value"));
+//                        String nameOp = o.select("img").attr("title");
+//                        System.out.println("id: " + idOp + " - name: " + nameOp);
+//                    });
+//                } else {
+//                    options.forEach(o -> {
+//                        int idOp = Integer.parseInt(o.select("input").attr("value"));
+//                        String nameOp = o.select("label").text();
+//                        System.out.println("id: " + idOp + " - name: " + nameOp);
+//                    });
+//                }
+//            });
+//
+//            Elements liImg = main.select("div.blockhead div.detail-imgproduct ul.thumb-detail > li");
+//            liImg.forEach(li->{
+//                Elements img = li.select("img");
+//                String title = img.attr("title");
+//                String link_img = "http:"+img.attr("src").replaceFirst("\\d{3}+x\\d{3}", "fill_size");
+//
+//                System.out.println(title);
+//                System.out.println(link_img);
+//            });
+//
+//            String highlight = main.select("div.block-description div.overview").html();
+//            String description = main.select("div.block-description > p").outerHtml();
+//
 
-            return name;
+
+            return nameProductMain;
         } catch (IOException e) {
             e.printStackTrace();
         }
