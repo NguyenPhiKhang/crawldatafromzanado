@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,9 @@ public class ProductService implements IProductService {
 
     @Autowired
     private IOptionProductVarcharService optionProductVarcharService;
+
+    @Autowired
+    private ICatalogProductVarcharService catalogProductVarcharService;
 
 
     @Override
@@ -70,7 +74,7 @@ public class ProductService implements IProductService {
                 category.setId(idCategory);
                 category.setLevel(i - 1);
                 category.setName(nameCategory);
-                if (i != 1)
+                if (i != 1)å
                     category.setParentCategory(categoryService.findCategoryById(idCategoryLevelLast));
                 // check exists category
                 if (!categoryService.existCategory(idCategory)) {
@@ -85,8 +89,10 @@ public class ProductService implements IProductService {
             productMain.setName(nameProductMain);
             productMain.setSku("SID" + idProduct);
             productMain.setActive(true);
-            productMain.setVisibility(true);
+            productMain.setVisibility(true);å
             productMain.setShortDescription(productPriceView.select("div.product-description").text());
+            productMain.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+            productMain.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
             Elements attribute_products = main.select("div.block-description div.product-attributes div.product-attribute");
             for (Element attr : attribute_products) {
@@ -181,6 +187,19 @@ public class ProductService implements IProductService {
             if (listOpsss.size() == 2) {
                 for(int i=0;i<listOpsss.get(0).size();i++){
                     for(int j=0;j<listOpsss.get(1).size();j++){
+                        Product prodSub = new Product();
+                        int idProoo = Integer.parseInt(String.valueOf(idProduct)+ (i * j + 1));
+                        prodSub.setId(idProoo);
+                        prodSub.setSku("SID"+idProoo);
+                        prodSub.setActive(true);
+                        prodSub.setVisibility(false);
+                        prodSub.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+                        prodSub.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+                        prodSub.setTypeId("Simple");
+
+                        productRepository.save(prodSub);
+
+
 
                     }
                 }
