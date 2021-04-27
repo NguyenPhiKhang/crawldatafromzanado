@@ -73,32 +73,45 @@ public class Product implements Serializable {
     private Brand brand;
 
 
-    @ManyToMany(targetEntity = Category.class, cascade = CascadeType.ALL )
+    @ManyToMany(targetEntity = OptionProductVarchar.class, cascade = CascadeType.ALL )
     @JoinTable(
-            name = "option_product_varchar",
+            name = "catalog_product_varchar",
             joinColumns =
             @JoinColumn(name = "product_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "option_id", referencedColumnName = "id"))
     @JsonIgnore
     private Set<OptionProductVarchar> optionProductVarchars = new HashSet<>();
 
-    @ManyToMany(targetEntity = Category.class, cascade = CascadeType.ALL )
+    @ManyToMany(targetEntity = OptionProductInteger.class, cascade = CascadeType.ALL )
     @JoinTable(
-            name = "option_product_int",
+            name = "catalog_product_int",
             joinColumns =
             @JoinColumn(name = "product_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "option_id", referencedColumnName = "id"))
     @JsonIgnore
     private Set<OptionProductInteger> optionProductIntegers = new HashSet<>();
 
-    @ManyToMany(targetEntity = Category.class, cascade = CascadeType.ALL )
+    @ManyToMany(targetEntity = OptionProductDecimal.class, cascade = CascadeType.ALL )
     @JoinTable(
-            name = "option_product_decimal",
+            name = "catalog_product_decimal",
             joinColumns =
             @JoinColumn(name = "product_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "option_id", referencedColumnName = "id"))
     @JsonIgnore
     private Set<OptionProductDecimal> optionProductDecimals = new HashSet<>();
+
+    @ManyToMany(targetEntity = Product.class, cascade = CascadeType.ALL )
+    @JoinTable(
+            name = "catalog_product_link",
+            joinColumns =
+            @JoinColumn(name = "product_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "link_product_id", referencedColumnName = "id"))
+    @JsonIgnore
+    private Set<Product> productLinks = new HashSet<>();
+
+    @ManyToMany(targetEntity = Product.class, mappedBy = "productLinks", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Set<Product> products = new HashSet<>();
 
 //    @ManyToMany(targetEntity = Image.class, cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
 //    @JoinTable(
@@ -328,6 +341,22 @@ public class Product implements Serializable {
 
     public void setOptionProductDecimals(Set<OptionProductDecimal> optionProductDecimals) {
         this.optionProductDecimals = optionProductDecimals;
+    }
+
+    public Set<Product> getProductLinks() {
+        return productLinks;
+    }
+
+    public void setProductLinks(Set<Product> productLinks) {
+        this.productLinks = productLinks;
+    }
+
+    public Set<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(Set<Product> products) {
+        this.products = products;
     }
 }
 

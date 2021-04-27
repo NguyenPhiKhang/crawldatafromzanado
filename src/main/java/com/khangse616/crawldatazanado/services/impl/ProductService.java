@@ -2,6 +2,7 @@ package com.khangse616.crawldatazanado.services.impl;
 
 import com.khangse616.crawldatazanado.Utils.StringUtil;
 import com.khangse616.crawldatazanado.models.*;
+import com.khangse616.crawldatazanado.models.DTO.ImageDTO;
 import com.khangse616.crawldatazanado.repositories.ProductRepository;
 import com.khangse616.crawldatazanado.services.*;
 import org.jsoup.Jsoup;
@@ -34,19 +35,10 @@ public class ProductService implements IProductService {
     private IOptionProductVarcharService optionProductVarcharService;
 
     @Autowired
-    private ICatalogProductVarcharService catalogProductVarcharService;
-
-    @Autowired
     private IOptionProductDecimalService optionProductDecimalService;
 
     @Autowired
     private IOptionProductIntegerService optionProductIntegerService;
-
-    @Autowired
-    private ICatalogProductIntegerService catalogProductIntegerService;
-
-    @Autowired
-    private ICatalogProductIDecimalService catalogProductIDecimalService;
 
     @Override
     public String createProduct(String url) {
@@ -194,17 +186,32 @@ public class ProductService implements IProductService {
                 listOpsss.add(list1);
             }
 
-            List<Product> listProSub = new ArrayList<>();
-
             Random rd = new Random();
 
             BigDecimal price = BigDecimal.valueOf(Double.parseDouble(productPriceView.select("div.pricespecial").text().replaceAll("[^0-9]", "")));
 
+            Elements liImg = main.select("div.blockhead div.detail-imgproduct ul.thumb-detail > li");
+
+            List<ImageDTO> listImgDTO = new ArrayList<>();
+
+            liImg.forEach(li->{
+                Elements img = li.select("img");
+                String title = img.attr("title");
+                String link_img = img.attr("src").replaceFirst("\\d{3}+x\\d{3}", "fill_size");
+
+                listImgDTO.add(new ImageDTO(title, link_img));
+            });
+
+            List<Product> listProSub = new ArrayList<>();
+
+            int checkIsColor = -1;
+
             if (listOpsss.size() == 2) {
+                checkIsColor = 1;
                 for(int i=0;i<listOpsss.get(0).size();i++){
                     for(int j=0;j<listOpsss.get(1).size();j++){
                         Product prodSub = new Product();
-                        int idProoo = Integer.parseInt(String.valueOf(idProduct)+ (i * j + 1));
+                        int idProoo = Integer.parseInt(String.valueOf(idProduct)+ (((i+1)*20) + (j+1)));
                         prodSub.setId(idProoo);
                         prodSub.setSku("SID"+idProoo);
                         prodSub.setActive(true);
@@ -212,8 +219,6 @@ public class ProductService implements IProductService {
                         prodSub.setCreatedAt(new Timestamp(System.currentTimeMillis()));
                         prodSub.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
                         prodSub.setTypeId("Simple");
-
-                        productRepository.save(prodSub);
 
                         int idPrice;
                         int idQuantity;
@@ -227,13 +232,9 @@ public class ProductService implements IProductService {
                         opDec.setValue(price);
                         opDec.setAttribute(240719);
 
-                        optionProductDecimalService.save(opDec);
-
-                        CatalogProductDecimal catalogProductDecimal = new CatalogProductDecimal();
-                        catalogProductDecimal.setProductId(idProoo);
-                        catalogProductDecimal.setOptionId(idPrice);
-
-                        catalogProductIDecimalService.save(catalogProductDecimal);
+                        Set<OptionProductDecimal> optionProductDecimalSet = new HashSet<>();
+                        optionProductDecimalSet.add(optionProductDecimalService.save(opDec));
+                        prodSub.setOptionProductDecimals(optionProductDecimalSet);
 
                         do {
                             idQuantity  = 1 + rd.nextInt(6000001);
@@ -244,51 +245,109 @@ public class ProductService implements IProductService {
                         opInt.setValue(5+rd.nextInt(50));
                         opInt.setAttribute(240720);
 
-                        optionProductIntegerService.save(opInt);
+                        Set<OptionProductInteger> optionProductIntegerSet = new HashSet<>();
+                        optionProductIntegerSet.add(optionProductIntegerService.save(opInt));
+                        prodSub.setOptionProductIntegers(optionProductIntegerSet);
+
+                        Set<OptionProductVarchar> optionProductVarcharSet = new HashSet<>();
+                        optionProductVarcharSet.add(listOpsss.get(0).get(i));
+                        optionProductVarcharSet.add(listOpsss.get(1).get(j));
+
+                        prodSub.setOptionProductVarchars(optionProductVarcharSet);
 
 
-                        CatalogProductInteger catalogProductInteger = new CatalogProductInteger();
-                        catalogProductInteger.setProductId(idProoo);
-                        catalogProductInteger.setOptionId(idQuantity);
-
-
-                        CatalogProductVarchar catalogProductVarchar1 = new CatalogProductVarchar();
-                        catalogProductVarchar1.setProductId(idProoo);
-                        catalogProductVarchar1.setOptionId(listOpsss.get(0).get(i).getId());
-
-                        catalogProductVarcharService.save(catalogProductVarchar1);
-
-                        CatalogProductVarchar catalogProductVarchar2 = new CatalogProductVarchar();
-                        catalogProductVarchar2.setProductId(idProoo);
-                        catalogProductVarchar2.setOptionId(listOpsss.get(1).get(j).getId());
-
-                        catalogProductVarcharService.save(catalogProductVarchar2);
-
-
-
-
+                        listProSub.add(productRepository.save(prodSub));
                     }
                 }
+                productMain.setTypeId("configurable");
             } else {
                 if (listOpsss.size() == 1) {
+                    for(int i=0;i<listOpsss.get(0).size();i++){
+                        Product prodSub = new Product();
+                        int idProoo = Integer.parseInt(String.valueOf(idProduct)+ (((i+1)*20) + 1));
+                        prodSub.setId(idProoo);
+                        prodSub.setSku("SID"+idProoo);
+                        prodSub.setActive(true);
+                        prodSub.setVisibility(false);
+                        prodSub.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+                        prodSub.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+                        prodSub.setTypeId("simple");
 
+                        int idPrice;
+                        int idQuantity;
+
+                        do {
+                            idPrice = 1 + rd.nextInt(6000001);
+                        } while (optionProductDecimalService.existOptionProductDecimalById(idPrice));
+
+                        OptionProductDecimal opDec = new OptionProductDecimal();
+                        opDec.setId(idPrice);
+                        opDec.setValue(price);
+                        opDec.setAttribute(240719);
+
+                        Set<OptionProductDecimal> optionProductDecimalSet = new HashSet<>();
+                        optionProductDecimalSet.add(optionProductDecimalService.save(opDec));
+                        prodSub.setOptionProductDecimals(optionProductDecimalSet);
+
+                        do {
+                            idQuantity  = 1 + rd.nextInt(6000001);
+                        } while (optionProductIntegerService.existOptionProductIntegerById(idQuantity));
+
+                        OptionProductInteger opInt = new OptionProductInteger();
+                        opInt.setId(idQuantity);
+                        opInt.setValue(5+rd.nextInt(50));
+                        opInt.setAttribute(240720);
+
+                        Set<OptionProductInteger> optionProductIntegerSet = new HashSet<>();
+                        optionProductIntegerSet.add(optionProductIntegerService.save(opInt));
+                        prodSub.setOptionProductIntegers(optionProductIntegerSet);
+
+                        Set<OptionProductVarchar> optionProductVarcharSet = new HashSet<>();
+                        optionProductVarcharSet.add(listOpsss.get(0).get(i));
+
+                        prodSub.setOptionProductVarchars(optionProductVarcharSet);
+
+
+                        listProSub.add(productRepository.save(prodSub));
+                    }
+                    productMain.setTypeId("configurable");
                 } else {
 
+                    productMain.setTypeId("simple");
+
+                    int idPrice;
+                    int idQuantity;
+
+                    do {
+                        idPrice = 1 + rd.nextInt(6000001);
+                    } while (optionProductDecimalService.existOptionProductDecimalById(idPrice));
+
+                    OptionProductDecimal opDec = new OptionProductDecimal();
+                    opDec.setId(idPrice);
+                    opDec.setValue(price);
+                    opDec.setAttribute(240719);
+
+                    Set<OptionProductDecimal> optionProductDecimalSet = new HashSet<>();
+                    optionProductDecimalSet.add(optionProductDecimalService.save(opDec));
+                    productMain.setOptionProductDecimals(optionProductDecimalSet);
+
+                    do {
+                        idQuantity  = 1 + rd.nextInt(6000001);
+                    } while (optionProductIntegerService.existOptionProductIntegerById(idQuantity));
+
+                    OptionProductInteger opInt = new OptionProductInteger();
+                    opInt.setId(idQuantity);
+                    opInt.setValue(5+rd.nextInt(50));
+                    opInt.setAttribute(240720);
+
+//                    listProSub.add(productRepository.save(prodSub));
                 }
             }
 
+            if(checkIsColor==1){
 
-//
-//            Elements liImg = main.select("div.blockhead div.detail-imgproduct ul.thumb-detail > li");
-//            liImg.forEach(li->{
-//                Elements img = li.select("img");
-//                String title = img.attr("title");
-//                String link_img = "http:"+img.attr("src").replaceFirst("\\d{3}+x\\d{3}", "fill_size");
-//
-//                System.out.println(title);
-//                System.out.println(link_img);
-//            });
-//
+            }
+
 
 
             return "done";

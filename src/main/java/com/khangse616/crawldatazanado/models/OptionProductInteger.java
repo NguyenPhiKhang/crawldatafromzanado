@@ -16,7 +16,7 @@ public class OptionProductInteger implements Serializable {
     @Id
     private int id;
     @Column(name="value")
-    private Integer value;
+    private int value;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "attribute_id")
