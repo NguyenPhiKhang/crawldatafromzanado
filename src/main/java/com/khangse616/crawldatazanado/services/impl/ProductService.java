@@ -12,11 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ProductService implements IProductService {
@@ -38,6 +36,17 @@ public class ProductService implements IProductService {
     @Autowired
     private ICatalogProductVarcharService catalogProductVarcharService;
 
+    @Autowired
+    private IOptionProductDecimalService optionProductDecimalService;
+
+    @Autowired
+    private IOptionProductIntegerService optionProductIntegerService;
+
+    @Autowired
+    private ICatalogProductIntegerService catalogProductIntegerService;
+
+    @Autowired
+    private ICatalogProductIDecimalService catalogProductIDecimalService;
 
     @Override
     public String createProduct(String url) {
@@ -74,8 +83,9 @@ public class ProductService implements IProductService {
                 category.setId(idCategory);
                 category.setLevel(i - 1);
                 category.setName(nameCategory);
-                if (i != 1)å
+                if (i != 1)
                     category.setParentCategory(categoryService.findCategoryById(idCategoryLevelLast));
+
                 // check exists category
                 if (!categoryService.existCategory(idCategory)) {
                     categoryService.save(category);
@@ -89,10 +99,12 @@ public class ProductService implements IProductService {
             productMain.setName(nameProductMain);
             productMain.setSku("SID" + idProduct);
             productMain.setActive(true);
-            productMain.setVisibility(true);å
+            productMain.setVisibility(true);
             productMain.setShortDescription(productPriceView.select("div.product-description").text());
             productMain.setCreatedAt(new Timestamp(System.currentTimeMillis()));
             productMain.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+
+
 
             Elements attribute_products = main.select("div.block-description div.product-attributes div.product-attribute");
             for (Element attr : attribute_products) {
@@ -184,6 +196,10 @@ public class ProductService implements IProductService {
 
             List<Product> listProSub = new ArrayList<>();
 
+            Random rd = new Random();
+
+            BigDecimal price = BigDecimal.valueOf(Double.parseDouble(productPriceView.select("div.pricespecial").text().replaceAll("[^0-9]", "")));
+
             if (listOpsss.size() == 2) {
                 for(int i=0;i<listOpsss.get(0).size();i++){
                     for(int j=0;j<listOpsss.get(1).size();j++){
@@ -199,7 +215,30 @@ public class ProductService implements IProductService {
 
                         productRepository.save(prodSub);
 
+                        int idPrice;
+                        int idQuantity;
 
+                        do {
+                            idPrice = 1 + rd.nextInt(6000001);
+                        } while (optionProductDecimalService.existOptionProductDecimalById(idPrice));
+
+                        OptionProductDecimal opDec = new OptionProductDecimal();
+                        opDec.setId(idPrice);
+                        opDec.setValue(price);
+                        opDec.setAttribute(240719);
+
+                        optionProductDecimalService.save(opDec);
+
+                        do {
+                            idQuantity  = 1 + rd.nextInt(6000001);
+                        } while (optionProductIntegerService.existOptionProductIntegerById(idQuantity));
+
+                        OptionProductInteger opInt = new OptionProductInteger();
+                        opInt.setId(idQuantity);
+                        opInt.setValue(5+rd.nextInt(50));
+                        opInt.setAttribute(240720);
+
+                        optionProductIntegerService.save(opInt);
 
                     }
                 }

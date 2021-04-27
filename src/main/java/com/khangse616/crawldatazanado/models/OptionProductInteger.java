@@ -16,10 +16,13 @@ public class OptionProductInteger implements Serializable {
     @Column(name="value")
     private Integer value;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "attribute_id")
-    @JsonIgnore
-    private Attribute attribute;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "attribute_id")
+//    @JsonIgnore
+//    private Attribute attribute;
+
+    @Column(name = "attribute_id")
+    private int attribute;
 
     public OptionProductInteger() {
     }
@@ -40,11 +43,20 @@ public class OptionProductInteger implements Serializable {
         this.value = value;
     }
 
-    public Attribute getAttribute() {
+//    public Attribute getAttribute() {
+//        return attribute;
+//    }
+//
+//    public void setAttribute(Attribute attribute) {
+//        this.attribute = attribute;
+//    }
+
+
+    public int getAttribute() {
         return attribute;
     }
 
-    public void setAttribute(Attribute attribute) {
+    public void setAttribute(int attribute) {
         this.attribute = attribute;
     }
 }

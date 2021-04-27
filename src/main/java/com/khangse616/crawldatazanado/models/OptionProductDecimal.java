@@ -17,10 +17,13 @@ public class OptionProductDecimal implements Serializable {
     @Column(name="value")
     private BigDecimal value;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "attribute_id")
-    @JsonIgnore
-    private Attribute attribute;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "attribute_id")
+//    @JsonIgnore
+//    private Attribute attribute;
+
+    @Column(name = "attribute_id")
+    private int attribute;
 
     public OptionProductDecimal() {
     }
@@ -41,11 +44,20 @@ public class OptionProductDecimal implements Serializable {
         this.value = value;
     }
 
-    public Attribute getAttribute() {
+//    public Attribute getAttribute() {
+//        return attribute;
+//    }
+//
+//    public void setAttribute(Attribute attribute) {
+//        this.attribute = attribute;
+//    }
+
+
+    public int getAttribute() {
         return attribute;
     }
 
-    public void setAttribute(Attribute attribute) {
+    public void setAttribute(int attribute) {
         this.attribute = attribute;
     }
 }
