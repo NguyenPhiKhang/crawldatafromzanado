@@ -14,6 +14,6 @@ public class CatalogProductDecimalService implements ICatalogProductIDecimalServ
 
     @Override
     public CatalogProductDecimal save(CatalogProductDecimal catalogProductDecimal) {
-        return null;
+        return catalogProductDecimalRepository.save(catalogProductDecimal);
     }
 }

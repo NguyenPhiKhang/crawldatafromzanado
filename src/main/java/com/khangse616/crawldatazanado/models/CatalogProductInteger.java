@@ -13,23 +13,15 @@ import java.io.Serializable;
 @Table(name = "option_product_varchar")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class CatalogProductInteger implements Serializable {
-    @Id
-    private int id;
 
+    @Id
     @Column(name="product_id")
     private int productId;
+    @Id
     @Column(name="option_id")
     private int optionId;
 
     public CatalogProductInteger() {
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public int getProductId() {

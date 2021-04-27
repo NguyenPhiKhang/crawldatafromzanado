@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "option_product_varchar")
@@ -21,6 +23,9 @@ public class OptionProductVarchar implements Serializable {
     @JoinColumn(name = "attribute_id")
     @JsonIgnore
     private Attribute attribute;
+
+    @ManyToMany(targetEntity = Product.class, mappedBy = "optionProductVarchars", cascade = CascadeType.ALL)
+    private Set<Product> products = new HashSet<>();
 
     public OptionProductVarchar() {
     }
@@ -47,5 +52,13 @@ public class OptionProductVarchar implements Serializable {
 
     public void setAttribute(Attribute attribute) {
         this.attribute = attribute;
+    }
+
+    public Set<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(Set<Product> products) {
+        this.products = products;
     }
 }

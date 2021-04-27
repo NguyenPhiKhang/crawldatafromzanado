@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "option_product_decimal")
@@ -24,6 +26,9 @@ public class OptionProductDecimal implements Serializable {
 
     @Column(name = "attribute_id")
     private int attribute;
+
+    @ManyToMany(targetEntity = Product.class, mappedBy = "optionProductDecimals", cascade = CascadeType.ALL)
+    private Set<Product> products = new HashSet<>();
 
     public OptionProductDecimal() {
     }
@@ -59,5 +64,13 @@ public class OptionProductDecimal implements Serializable {
 
     public void setAttribute(int attribute) {
         this.attribute = attribute;
+    }
+
+    public Set<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(Set<Product> products) {
+        this.products = products;
     }
 }

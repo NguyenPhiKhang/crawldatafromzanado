@@ -15,22 +15,13 @@ import java.io.Serializable;
 public class CatalogProductVarchar implements Serializable {
 
     @Id
-    private int id;
-
     @Column(name="product_id")
     private int productId;
+    @Id
     @Column(name="option_id")
     private int optionId;
 
     public CatalogProductVarchar() {
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public int getProductId() {

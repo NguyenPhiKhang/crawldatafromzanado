@@ -14,6 +14,6 @@ public class CatalogProductIntegerService implements ICatalogProductIntegerServi
 
     @Override
     public CatalogProductInteger save(CatalogProductInteger catalogProductInteger) {
-        return null;
+        return catalogProductIntegerRepository.save(catalogProductInteger);
     }
 }

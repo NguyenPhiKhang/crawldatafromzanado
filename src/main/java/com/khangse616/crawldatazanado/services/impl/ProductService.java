@@ -229,6 +229,12 @@ public class ProductService implements IProductService {
 
                         optionProductDecimalService.save(opDec);
 
+                        CatalogProductDecimal catalogProductDecimal = new CatalogProductDecimal();
+                        catalogProductDecimal.setProductId(idProoo);
+                        catalogProductDecimal.setOptionId(idPrice);
+
+                        catalogProductIDecimalService.save(catalogProductDecimal);
+
                         do {
                             idQuantity  = 1 + rd.nextInt(6000001);
                         } while (optionProductIntegerService.existOptionProductIntegerById(idQuantity));
@@ -239,6 +245,27 @@ public class ProductService implements IProductService {
                         opInt.setAttribute(240720);
 
                         optionProductIntegerService.save(opInt);
+
+
+                        CatalogProductInteger catalogProductInteger = new CatalogProductInteger();
+                        catalogProductInteger.setProductId(idProoo);
+                        catalogProductInteger.setOptionId(idQuantity);
+
+
+                        CatalogProductVarchar catalogProductVarchar1 = new CatalogProductVarchar();
+                        catalogProductVarchar1.setProductId(idProoo);
+                        catalogProductVarchar1.setOptionId(listOpsss.get(0).get(i).getId());
+
+                        catalogProductVarcharService.save(catalogProductVarchar1);
+
+                        CatalogProductVarchar catalogProductVarchar2 = new CatalogProductVarchar();
+                        catalogProductVarchar2.setProductId(idProoo);
+                        catalogProductVarchar2.setOptionId(listOpsss.get(1).get(j).getId());
+
+                        catalogProductVarcharService.save(catalogProductVarchar2);
+
+
+
 
                     }
                 }
@@ -262,8 +289,6 @@ public class ProductService implements IProductService {
 //                System.out.println(link_img);
 //            });
 //
-            //            int price = Integer.parseInt(productPriceView.select("div.pricespecial").text().replaceAll("[^0-9]", ""));
-//            System.out.println("price: " + price);
 
 
             return "done";

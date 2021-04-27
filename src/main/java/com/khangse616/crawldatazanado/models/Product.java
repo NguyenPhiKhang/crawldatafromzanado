@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "products")
@@ -69,6 +71,34 @@ public class Product implements Serializable {
     @JoinColumn(name = "brand_id")
     @JsonIgnore
     private Brand brand;
+
+
+    @ManyToMany(targetEntity = Category.class, cascade = CascadeType.ALL )
+    @JoinTable(
+            name = "option_product_varchar",
+            joinColumns =
+            @JoinColumn(name = "product_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "option_id", referencedColumnName = "id"))
+    @JsonIgnore
+    private Set<OptionProductVarchar> optionProductVarchars = new HashSet<>();
+
+    @ManyToMany(targetEntity = Category.class, cascade = CascadeType.ALL )
+    @JoinTable(
+            name = "option_product_int",
+            joinColumns =
+            @JoinColumn(name = "product_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "option_id", referencedColumnName = "id"))
+    @JsonIgnore
+    private Set<OptionProductInteger> optionProductIntegers = new HashSet<>();
+
+    @ManyToMany(targetEntity = Category.class, cascade = CascadeType.ALL )
+    @JoinTable(
+            name = "option_product_decimal",
+            joinColumns =
+            @JoinColumn(name = "product_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "option_id", referencedColumnName = "id"))
+    @JsonIgnore
+    private Set<OptionProductDecimal> optionProductDecimals = new HashSet<>();
 
 //    @ManyToMany(targetEntity = Image.class, cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
 //    @JoinTable(
@@ -274,6 +304,30 @@ public class Product implements Serializable {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public Set<OptionProductVarchar> getOptionProductVarchars() {
+        return optionProductVarchars;
+    }
+
+    public void setOptionProductVarchars(Set<OptionProductVarchar> optionProductVarchars) {
+        this.optionProductVarchars = optionProductVarchars;
+    }
+
+    public Set<OptionProductInteger> getOptionProductIntegers() {
+        return optionProductIntegers;
+    }
+
+    public void setOptionProductIntegers(Set<OptionProductInteger> optionProductIntegers) {
+        this.optionProductIntegers = optionProductIntegers;
+    }
+
+    public Set<OptionProductDecimal> getOptionProductDecimals() {
+        return optionProductDecimals;
+    }
+
+    public void setOptionProductDecimals(Set<OptionProductDecimal> optionProductDecimals) {
+        this.optionProductDecimals = optionProductDecimals;
     }
 }
 

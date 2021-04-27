@@ -13,6 +13,6 @@ public class CatalogProductVarcharService implements ICatalogProductVarcharServi
 
     @Override
     public CatalogProductVarchar save(CatalogProductVarchar catalogProductVarchar) {
-        return null;
+        return catalogProductVarcharRepository.save(catalogProductVarchar);
     }
 }
