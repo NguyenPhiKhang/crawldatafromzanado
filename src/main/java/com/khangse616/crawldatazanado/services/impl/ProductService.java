@@ -97,7 +97,6 @@ public class ProductService implements IProductService {
             productMain.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
 
-
             Elements attribute_products = main.select("div.block-description div.product-attributes div.product-attribute");
             for (Element attr : attribute_products) {
                 String title = attr.select("div.attribute-title").text().toLowerCase();
@@ -194,7 +193,7 @@ public class ProductService implements IProductService {
 
             List<ImageDTO> listImgDTO = new ArrayList<>();
 
-            liImg.forEach(li->{
+            liImg.forEach(li -> {
                 Elements img = li.select("img");
                 String title = img.attr("title");
                 String link_img = img.attr("src").replaceFirst("\\d{3}+x\\d{3}", "fill_size");
@@ -202,18 +201,24 @@ public class ProductService implements IProductService {
                 listImgDTO.add(new ImageDTO(title, link_img));
             });
 
-            List<Product> listProSub = new ArrayList<>();
+            Set<Product> listProSub = new HashSet<>();
 
             int checkIsColor = -1;
 
             if (listOpsss.size() == 2) {
-                checkIsColor = 1;
-                for(int i=0;i<listOpsss.get(0).size();i++){
-                    for(int j=0;j<listOpsss.get(1).size();j++){
+                int index0 = 0;
+                int index1 = 1;
+                if (listOpsss.get(0).get(0).getAttribute().getId() != 80) {
+                    index0 = 1;
+                    index1 = 0;
+                }
+                for (int i = 0; i < listOpsss.get(index0).size(); i++) {
+
+                    for (int j = 0; j < listOpsss.get(index1).size(); j++) {
                         Product prodSub = new Product();
-                        int idProoo = Integer.parseInt(String.valueOf(idProduct)+ (((i+1)*20) + (j+1)));
+                        int idProoo = Integer.parseInt(String.valueOf(idProduct) + (((i + 1) * 20) + (j + 1)));
                         prodSub.setId(idProoo);
-                        prodSub.setSku("SID"+idProoo);
+                        prodSub.setSku("SID" + idProoo);
                         prodSub.setActive(true);
                         prodSub.setVisibility(false);
                         prodSub.setCreatedAt(new Timestamp(System.currentTimeMillis()));
@@ -237,12 +242,12 @@ public class ProductService implements IProductService {
                         prodSub.setOptionProductDecimals(optionProductDecimalSet);
 
                         do {
-                            idQuantity  = 1 + rd.nextInt(6000001);
+                            idQuantity = 1 + rd.nextInt(6000001);
                         } while (optionProductIntegerService.existOptionProductIntegerById(idQuantity));
 
                         OptionProductInteger opInt = new OptionProductInteger();
                         opInt.setId(idQuantity);
-                        opInt.setValue(5+rd.nextInt(50));
+                        opInt.setValue(5 + rd.nextInt(50));
                         opInt.setAttribute(240720);
 
                         Set<OptionProductInteger> optionProductIntegerSet = new HashSet<>();
@@ -250,23 +255,26 @@ public class ProductService implements IProductService {
                         prodSub.setOptionProductIntegers(optionProductIntegerSet);
 
                         Set<OptionProductVarchar> optionProductVarcharSet = new HashSet<>();
-                        optionProductVarcharSet.add(listOpsss.get(0).get(i));
-                        optionProductVarcharSet.add(listOpsss.get(1).get(j));
+                        optionProductVarcharSet.add(listOpsss.get(index0).get(i));
+                        optionProductVarcharSet.add(listOpsss.get(index1).get(j));
 
                         prodSub.setOptionProductVarchars(optionProductVarcharSet);
-
 
                         listProSub.add(productRepository.save(prodSub));
                     }
                 }
                 productMain.setTypeId("configurable");
+                productMain.setProductLinks(listProSub);
             } else {
                 if (listOpsss.size() == 1) {
-                    for(int i=0;i<listOpsss.get(0).size();i++){
+                    if (listOpsss.get(0).get(0).getAttribute().getId() == 80) {
+                        checkIsColor = 1;
+                    }
+                    for (int i = 0; i < listOpsss.get(0).size(); i++) {
                         Product prodSub = new Product();
-                        int idProoo = Integer.parseInt(String.valueOf(idProduct)+ (((i+1)*20) + 1));
+                        int idProoo = Integer.parseInt(String.valueOf(idProduct) + (((i + 1) * 20) + 1));
                         prodSub.setId(idProoo);
-                        prodSub.setSku("SID"+idProoo);
+                        prodSub.setSku("SID" + idProoo);
                         prodSub.setActive(true);
                         prodSub.setVisibility(false);
                         prodSub.setCreatedAt(new Timestamp(System.currentTimeMillis()));
@@ -290,12 +298,12 @@ public class ProductService implements IProductService {
                         prodSub.setOptionProductDecimals(optionProductDecimalSet);
 
                         do {
-                            idQuantity  = 1 + rd.nextInt(6000001);
+                            idQuantity = 1 + rd.nextInt(6000001);
                         } while (optionProductIntegerService.existOptionProductIntegerById(idQuantity));
 
                         OptionProductInteger opInt = new OptionProductInteger();
                         opInt.setId(idQuantity);
-                        opInt.setValue(5+rd.nextInt(50));
+                        opInt.setValue(5 + rd.nextInt(50));
                         opInt.setAttribute(240720);
 
                         Set<OptionProductInteger> optionProductIntegerSet = new HashSet<>();
@@ -307,12 +315,12 @@ public class ProductService implements IProductService {
 
                         prodSub.setOptionProductVarchars(optionProductVarcharSet);
 
-
                         listProSub.add(productRepository.save(prodSub));
                     }
-                    productMain.setTypeId("configurable");
-                } else {
 
+                    productMain.setTypeId("configurable");
+                    productMain.setProductLinks(listProSub);
+                } else {
                     productMain.setTypeId("simple");
 
                     int idPrice;
@@ -332,22 +340,17 @@ public class ProductService implements IProductService {
                     productMain.setOptionProductDecimals(optionProductDecimalSet);
 
                     do {
-                        idQuantity  = 1 + rd.nextInt(6000001);
+                        idQuantity = 1 + rd.nextInt(6000001);
                     } while (optionProductIntegerService.existOptionProductIntegerById(idQuantity));
 
                     OptionProductInteger opInt = new OptionProductInteger();
                     opInt.setId(idQuantity);
-                    opInt.setValue(5+rd.nextInt(50));
+                    opInt.setValue(5 + rd.nextInt(50));
                     opInt.setAttribute(240720);
-
-//                    listProSub.add(productRepository.save(prodSub));
                 }
             }
 
-            if(checkIsColor==1){
-
-            }
-
+            productRepository.save(productMain);
 
 
             return "done";
