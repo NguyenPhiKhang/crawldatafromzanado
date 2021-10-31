@@ -12,27 +12,30 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "brands")
+@Table(name = "demand")
 @Getter
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Brand {
+public class Demand {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(name = "name")
     private String name;
-    @Column(name="icon")
+    @Column(name = "icon")
     private String icon;
 
-    @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @ManyToMany(targetEntity = Product.class,
+            mappedBy = "demands",
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JsonIgnore
     private Set<Product> products = new HashSet<>();
-
-    public Brand(int id, String name) {
-        this.id = id;
-        this.name = name;
-    }
 }
